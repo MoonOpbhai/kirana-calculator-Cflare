@@ -3,39 +3,17 @@ name: Deploy to Cloudflare Workers
 on:
   push:
     branches:
-      - main          # jab bhi main branch pe push ho, deploy ho jaayega
+      - main
 
 jobs:
   deploy:
-    name: Deploy Kirana Calculator
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Code checkout
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Node.js setup (Wrangler ke liye)
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
         with:
-          node-version: "20"
-
-      # 3. Wrangler install (Cloudflare CLI)
-      - name: Install Wrangler
-        run: npm install -g wrangler
-
-      # 4. HTML ko worker.js mein inject karo
-      - name: Inject HTML into Worker
-        run: |
-          # index.html ke content ko escape karke worker.js mein daalo
-          HTML_CONTENT=$(cat index.html | sed 's/\\/\\\\/g' | sed 's/`/\\`/g' | sed 's/\$/\\$/g')
-          sed -i "s|__HTML_CONTENT__|${HTML_CONTENT}|" worker.js
-          echo "✅ HTML injected into worker.js"
-
-      # 5. Cloudflare Workers pe deploy
-      - name: Deploy to Cloudflare
-        run: wrangler deploy worker.js --name kirana-calculator --compatibility-date 2024-01-01
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
