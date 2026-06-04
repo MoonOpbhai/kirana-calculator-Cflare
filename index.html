@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirana Hisab Calculator 🏪</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:   #14532d;
+      --green-mid:    #16a34a;
+      --green-light:  #bbf7d0;
+      --green-pale:   #f0fdf4;
+      --amber:        #d97706;
+      --amber-pale:   #fffbeb;
+      --text-main:    #1a1a1a;
+      --text-muted:   #6b7280;
+      --border:       #d1fae5;
+      --white:        #ffffff;
+      --shadow:       0 4px 24px rgba(20,83,45,0.10);
+      --radius:       14px;
+      --radius-sm:    8px;
+    }
+
+    body {
+      background: #e8f5ee;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      padding: 0 0 40px;
+      color: var(--text-main);
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, var(--green-dark) 0%, #166534 100%);
+      padding: 28px 20px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 12px);
+    }
+    .header h1 {
+      font-family: 'Tiro Devanagari Hindi', serif;
+      font-size: 26px; font-weight: 400; color: #fff;
+      position: relative; letter-spacing: .5px;
+    }
+    .header p {
+      font-size: 12px; color: #86efac; margin-top: 6px;
+      position: relative;
+    }
+    .header-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+
+    /* ── Card wrapper ── */
+    .card {
+      max-width: 480px;
+      margin: -1px auto 0;
+      background: var(--white);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: #f9fafb;
+      border-bottom: 2px solid var(--green-light);
+    }
+    .tab {
+      flex: 1; padding: 12px 6px;
+      font-size: 12px; font-weight: 600;
+      text-align: center; cursor: pointer;
+      border: none; background: transparent;
+      color: var(--text-muted);
+      transition: all .2s; line-height: 1.4;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .tab .tab-icon { font-size: 20px; }
+    .tab.active {
+      color: var(--green-dark);
+      background: var(--white);
+      border-bottom: 3px solid var(--green-mid);
+      margin-bottom: -2px;
+    }
+
+    /* ── Panel ── */
+    .panel { display: none; padding: 22px 18px 28px; animation: fadeIn .25s ease; }
+    .panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Section heading with info ── */
+    .section-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 18px; padding-bottom: 10px;
+      border-bottom: 1px dashed var(--green-light);
+    }
+    .section-head h2 {
+      font-size: 15px; font-weight: 600; color: var(--green-dark);
+    }
+    .info-btn {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--green-pale); border: 1.5px solid var(--green-light);
+      color: var(--green-mid); font-size: 12px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all .2s; user-select: none;
+    }
+    .info-btn:hover { background: var(--green-light); color: var(--green-dark); }
+
+    /* ── Info modal overlay ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.45); z-index: 999;
+      align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeIn .2s ease;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: var(--radius);
+      max-width: 360px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      overflow: hidden;
+      animation: slideUp .25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-header {
+      background: var(--green-dark); padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { color: #fff; font-size: 15px; font-weight: 600; }
+    .modal-close {
+      background: rgba(255,255,255,.15); border: none;
+      color: #fff; width: 28px; height: 28px;
+      border-radius: 50%; cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-body { padding: 18px; }
+    .modal-body p { font-size: 14px; color: var(--text-main); line-height: 1.7; margin-bottom: 10px; }
+    .modal-body p:last-child { margin-bottom: 0; }
+    .example-box {
+      background: var(--green-pale); border: 1px solid var(--green-light);
+      border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 12px;
+    }
+    .example-box .ex-title { font-size: 11px; font-weight: 600; color: var(--green-mid); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .example-box p { font-size: 13px; color: var(--green-dark); margin: 0; }
+    .example-box strong { color: var(--green-dark); }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 15px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .field input, .field select {
+      width: 100%; padding: 11px 14px;
+      font-size: 15px; font-family: inherit;
+      border: 1.5px solid #e5e7eb; border-radius: var(--radius-sm);
+      background: #fafafa; color: var(--text-main);
+      outline: none; transition: border-color .2s, background .2s;
+    }
+    .field input:focus { border-color: var(--green-mid); background: var(--white); }
+    .unit-row { display: flex; gap: 8px; }
+    .unit-row input { flex: 1; }
+    .unit-row select { width: 100px; flex-shrink: 0; }
+
+    /* ── Calc button ── */
+    .calc-btn {
+      width: 100%; padding: 14px;
+      font-size: 15px; font-weight: 600; font-family: inherit;
+      background: var(--green-dark); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background .2s, transform .1s;
+      margin-top: 6px; letter-spacing: .3px;
+    }
+    .calc-btn:hover { background: #166534; }
+    .calc-btn:active { transform: scale(.98); }
+
+    /* ── Result ── */
+    .result-box {
+      display: none; margin-top: 16px;
+      background: var(--green-pale); border: 2px solid var(--green-light);
+      border-radius: var(--radius-sm); padding: 16px;
+      animation: fadeIn .3s ease;
+    }
+    .result-box.show { display: block; }
+    .result-label { font-size: 11px; font-weight: 600; color: var(--green-mid); text-transform: uppercase; letter-spacing: .5px; }
+    .result-value { font-size: 32px; font-weight: 700; color: var(--green-dark); margin: 4px 0 6px; }
+    .result-detail { font-size: 12px; color: #4ade80; background: rgba(20,83,45,.08); border-radius: 6px; padding: 6px 10px; }
+
+    /* ── Bill tab ── */
+    .quick-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .chip {
+      padding: 5px 11px; font-size: 12px; font-weight: 500;
+      background: var(--green-pale); color: var(--green-dark);
+      border: 1px solid var(--green-light); border-radius: 20px;
+      cursor: pointer; transition: background .15s;
+    }
+    .chip:active { background: var(--green-light); }
+
+    .add-form {
+      background: #f9fafb; border: 1px dashed #d1d5db;
+      border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;
+    }
+    .add-btn {
+      width: 100%; padding: 10px;
+      font-size: 14px; font-weight: 600; font-family: inherit;
+      color: var(--green-dark); background: var(--green-pale);
+      border: 1.5px solid var(--green-light); border-radius: var(--radius-sm);
+      cursor: pointer; margin-top: 10px; transition: background .15s;
+    }
+    .add-btn:hover { background: var(--green-light); }
+
+    .bill-section { display: none; }
+    .bill-section.show { display: block; }
+    .bill-head {
+      font-size: 12px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
+    }
+    .item-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; background: var(--white);
+      border: 1px solid #f0f0f0; border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+    }
+    .item-name { flex: 1; font-size: 13px; font-weight: 500; }
+    .item-qty { font-size: 12px; color: var(--text-muted); }
+    .item-price { font-size: 14px; font-weight: 700; color: var(--green-dark); min-width: 60px; text-align: right; }
+    .del-btn { background: none; border: none; color: #f87171; cursor: pointer; font-size: 16px; padding: 0 2px; }
+
+    .total-bar {
+      background: var(--green-dark); color: #fff;
+      border-radius: var(--radius-sm); padding: 14px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px;
+    }
+    .total-bar .tl { font-size: 13px; opacity: .8; }
+    .total-bar .tv { font-size: 24px; font-weight: 700; }
+    .clear-btn {
+      width: 100%; margin-top: 8px; padding: 8px;
+      background: none; border: none; color: #f87171;
+      font-size: 13px; cursor: pointer; font-family: inherit;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center; font-size: 11px; color: #9ca3af;
+      padding: 16px 20px 0; max-width: 480px; margin: 0 auto;
+    }
+
+    @media (max-width: 400px) {
+      .tab { font-size: 11px; padding: 10px 4px; }
+      .header h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Info Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Jankari</h3>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <span class="header-icon">🏪</span>
+  <h1>Kirana Hisab Calculator</h1>
+  <p>Aasaan hisab — seedha dukaan ke liye</p>
+</div>
+
+<div class="card">
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('price')">
+      <span class="tab-icon">💰</span> Gram se<br>Daam
+    </button>
+    <button class="tab" onclick="showTab('weight')">
+      <span class="tab-icon">⚖️</span> Daam se<br>Gram
+    </button>
+    <button class="tab" onclick="showTab('bill')">
+      <span class="tab-icon">🧾</span> Bill<br>Banana
+    </button>
+  </div>
+
+  <!-- Tab 1: Gram → Price -->
+  <div id="panel-price" class="panel active">
+    <div class="section-head">
+      <h2>💰 Gram se Daam Nikalo</h2>
+      <button class="info-btn" onclick="showInfo('price')" title="Kya karta hai?">?</button>
+    </div>
+    <div class="field">
+      <label>Cheez ka naam (optional)</label>
+      <input type="text" id="p-name" placeholder="Jaise: Chini, Daal, Chawal..." />
+    </div>
+    <div class="field">
+      <label>1 Kilo ka rate (₹)</label>
+      <input type="number" id="p-rate" placeholder="Jaise: 240" inputmode="decimal" />
+    </div>
+    <div class="field">
+      <label>Kitna lena hai?</label>
+      <div class="unit-row">
+        <input type="number" id="p-qty" placeholder="Jaise: 70" inputmode="decimal" />
+        <select id="p-unit">
+          <option value="gram">Gram</option>
+          <option value="kg">Kilo</option>
+        </select>
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calcPrice()">Hisab Lagao ▶</button>
+    <div id="price-result" class="result-box">
+      <div class="result-label">Total Dena Hoga</div>
+      <div class="result-value" id="price-ans">—</div>
+      <div class="result-detail" id="price-detail"></div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Price → Gram -->
+  <div id="panel-weight" class="panel">
+    <div class="section-head">
+      <h2>⚖️ Daam se Gram Nikalo</h2>
+      <button class="info-btn" onclick="showInfo('weight')" title="Kya karta hai?">?</button>
+    </div>
+    <div class="field">
+      <label>Cheez ka naam (optional)</label>
+      <input type="text" id="w-name" placeholder="Jaise: Chini, Daal, Chawal..." />
+    </div>
+    <div class="field">
+      <label>1 Kilo ka rate (₹)</label>
+      <input type="number" id="w-rate" placeholder="Jaise: 240" inputmode="decimal" />
+    </div>
+    <div class="field">
+      <label>Kitne ₹ ki cheez chahiye?</label>
+      <input type="number" id="w-money" placeholder="Jaise: 30" inputmode="decimal" />
+    </div>
+    <button class="calc-btn" onclick="calcWeight()">Hisab Lagao ▶</button>
+    <div id="weight-result" class="result-box">
+      <div class="result-label">Itna Gram Dena Hoga</div>
+      <div class="result-value" id="weight-ans">—</div>
+      <div class="result-detail" id="weight-detail"></div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Bill -->
+  <div id="panel-bill" class="panel">
+    <div class="section-head">
+      <h2>🧾 Bill Banana</h2>
+      <button class="info-btn" onclick="showInfo('bill')" title="Kya karta hai?">?</button>
+    </div>
+
+    <div class="quick-chips" id="quick-chips">
+      <span class="chip" onclick="quickAdd('Chini',240)">Chini ₹240/kg</span>
+      <span class="chip" onclick="quickAdd('Chawal',60)">Chawal ₹60/kg</span>
+      <span class="chip" onclick="quickAdd('Daal',120)">Daal ₹120/kg</span>
+      <span class="chip" onclick="quickAdd('Atta',45)">Atta ₹45/kg</span>
+      <span class="chip" onclick="quickAdd('Tel',160)">Tel ₹160/kg</span>
+      <span class="chip" onclick="quickAdd('Namak',20)">Namak ₹20/kg</span>
+    </div>
+
+    <div class="add-form">
+      <div class="field">
+        <label>Cheez ka naam</label>
+        <input type="text" id="b-name" placeholder="Jaise: Chini" />
+      </div>
+      <div class="field">
+        <label>1 Kilo ka rate (₹)</label>
+        <input type="number" id="b-rate" placeholder="240" inputmode="decimal" />
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Kitna lena hai?</label>
+        <div class="unit-row">
+          <input type="number" id="b-qty" placeholder="500" inputmode="decimal" />
+          <select id="b-unit">
+            <option value="gram">Gram</option>
+            <option value="kg">Kilo</option>
+          </select>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addItem()">+ Item Bill Mein Add Karo</button>
+    </div>
+
+    <div class="bill-section" id="bill-section">
+      <p class="bill-head">Aaj ki khareedi 📋</p>
+      <div id="items-container"></div>
+      <div class="total-bar">
+        <span class="tl">Kul Jama Daam</span>
+        <span class="tv" id="grand-total">₹0</span>
+      </div>
+      <button class="clear-btn" onclick="clearBill()">🗑 Poora bill saaf karo</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Banaya gaya ❤️ aapke kirana dukaan ke liye &nbsp;·&nbsp; Hisab seedha, dukaan seedhi
+</div>
+
+<script>
+  /* ── Modal info content ── */
+  const INFO = {
+    price: {
+      title: '💰 Gram se Daam — Kya Karta Hai?',
+      html: `
+        <p>Agar aapko pata hai ki <strong>1 kilo ka rate kya hai</strong>, aur aap jaanna chahte hain ki <strong>thode gram ke kitne paise lagenge</strong> — toh yeh wala use karo.</p>
+        <div class="example-box">
+          <div class="ex-title">📌 Example</div>
+          <p>Chini ka rate: <strong>₹240 / kilo</strong><br>
+          Mujhe chahiye: <strong>70 gram</strong><br>
+          ➜ Total dena hoga: <strong>₹16.80</strong></p>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color:#6b7280;">Gram ya Kilo dono choose kar sakte ho.</p>
+      `
+    },
+    weight: {
+      title: '⚖️ Daam se Gram — Kya Karta Hai?',
+      html: `
+        <p>Agar customer kehta hai <strong>"itne rupaye ki cheez dedo"</strong> — aur aapko pata karna ho ki <strong>kitna gram dena hai</strong> — toh yeh wala use karo.</p>
+        <div class="example-box">
+          <div class="ex-title">📌 Example</div>
+          <p>Chini ka rate: <strong>₹240 / kilo</strong><br>
+          Customer ne diye: <strong>₹30</strong><br>
+          ➜ Itna gram do: <strong>125 gram</strong></p>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color:#6b7280;">Bohot kaam aata hai jab customer seedha paisa deta hai!</p>
+      `
+    },
+    bill: {
+      title: '🧾 Bill Banana — Kya Karta Hai?',
+      html: `
+        <p>Agar ek customer ne <strong>kai cheezein kharidi hain</strong>, toh sab ka daam ek jagah jod sakte ho aur <strong>total bill</strong> dekh sakte ho.</p>
+        <div class="example-box">
+          <div class="ex-title">📌 Example</div>
+          <p>Chini 500g → ₹120<br>
+          Daal 250g → ₹30<br>
+          Chawal 1kg → ₹60<br>
+          ➜ <strong>Kul Jama: ₹210</strong></p>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color:#6b7280;">Oopar ke quick buttons se common cheezein jaldi add karo!</p>
+      `
+    }
+  };
+
+  function showInfo(key) {
+    const info = INFO[key];
+    document.getElementById('modal-title').textContent = info.title;
+    document.getElementById('modal-body').innerHTML = info.html;
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+  }
+  function closeModalDirect() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  /* ── Tabs ── */
+  function showTab(name) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['price','weight','bill'][i] === name);
+    });
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+  }
+
+  /* ── Price calc ── */
+  function calcPrice() {
+    const rate = parseFloat(document.getElementById('p-rate').value);
+    const qty  = parseFloat(document.getElementById('p-qty').value);
+    const unit = document.getElementById('p-unit').value;
+    const name = document.getElementById('p-name').value.trim() || 'Cheez';
+    const box  = document.getElementById('price-result');
+    const ans  = document.getElementById('price-ans');
+    const det  = document.getElementById('price-detail');
+    if (!rate || !qty || rate <= 0 || qty <= 0) {
+      ans.textContent = '⚠️ Rate aur quantity dalo!';
+      box.classList.add('show'); det.textContent = ''; return;
+    }
+    const grams = unit === 'kg' ? qty * 1000 : qty;
+    const price = (rate / 1000) * grams;
+    ans.textContent = '₹' + price.toFixed(2);
+    det.textContent = name + ' — ' + (unit === 'kg' ? qty + ' kilo' : qty + ' gram') + ' × ₹' + rate + '/kg = ₹' + price.toFixed(2);
+    box.classList.add('show');
+  }
+
+  /* ── Weight calc ── */
+  function calcWeight() {
+    const rate  = parseFloat(document.getElementById('w-rate').value);
+    const money = parseFloat(document.getElementById('w-money').value);
+    const name  = document.getElementById('w-name').value.trim() || 'Cheez';
+    const box   = document.getElementById('weight-result');
+    const ans   = document.getElementById('weight-ans');
+    const det   = document.getElementById('weight-detail');
+    if (!rate || !money || rate <= 0 || money <= 0) {
+      ans.textContent = '⚠️ Rate aur paisa dalo!';
+      box.classList.add('show'); det.textContent = ''; return;
+    }
+    const grams = (money / rate) * 1000;
+    const rg = Math.round(grams * 10) / 10;
+    ans.textContent = rg >= 1000 ? (rg/1000).toFixed(3) + ' Kilo' : rg + ' Gram';
+    det.textContent = '₹' + money + ' mein ' + name + ': ' + rg + ' gram dena hoga';
+    box.classList.add('show');
+  }
+
+  /* ── Bill ── */
+  let billItems = [];
+  function quickAdd(name, rate) {
+    document.getElementById('b-name').value = name;
+    document.getElementById('b-rate').value = rate;
+    document.getElementById('b-qty').focus();
+  }
+  function addItem() {
+    const name = document.getElementById('b-name').value.trim();
+    const rate = parseFloat(document.getElementById('b-rate').value);
+    const qty  = parseFloat(document.getElementById('b-qty').value);
+    const unit = document.getElementById('b-unit').value;
+    if (!name || !rate || !qty) return;
+    const grams = unit === 'kg' ? qty * 1000 : qty;
+    const price = Math.round((rate / 1000) * grams * 100) / 100;
+    billItems.push({ name, qty, unit, rate, price });
+    renderBill();
+    document.getElementById('b-name').value = '';
+    document.getElementById('b-rate').value = '';
+    document.getElementById('b-qty').value = '';
+  }
+  function renderBill() {
+    const container = document.getElementById('items-container');
+    const section   = document.getElementById('bill-section');
+    if (!billItems.length) { section.classList.remove('show'); return; }
+    section.classList.add('show');
+    container.innerHTML = billItems.map((item, i) => `
+      <div class="item-row">
+        <span class="item-name">${item.name}</span>
+        <span class="item-qty">${item.qty}${item.unit === 'kg' ? 'kg' : 'g'}</span>
+        <span class="item-price">₹${item.price.toFixed(2)}</span>
+        <button class="del-btn" onclick="removeItem(${i})">✕</button>
+      </div>`).join('');
+    const total = billItems.reduce((s, i) => s + i.price, 0);
+    document.getElementById('grand-total').textContent = '₹' + total.toFixed(2);
+  }
+  function removeItem(i) { billItems.splice(i, 1); renderBill(); }
+  function clearBill() { billItems = []; renderBill(); }
+</script>
+</body>
+</html>

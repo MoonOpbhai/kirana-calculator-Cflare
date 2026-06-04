@@ -1,0 +1,9 @@
+name = "kirana-calculator"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Yeh free plan pe chal jaayega (Workers free tier: 100k requests/day)
+# Custom domain lagana ho toh neeche uncomment karo:
+# routes = [
+#   { pattern = "calculator.aapkadomain.com", zone_name = "aapkadomain.com" }
+# ]
