@@ -437,15 +437,7 @@ body{background:var(--bg);font-family:'Baloo 2',sans-serif;min-height:100vh;colo
       <button class="info-btn" onclick="showInfo('bill')">?</button>
     </div>
 
-    <div class="chips-label">⚡ Jaldi add karo</div>
-    <div class="chips">
-      <span class="chip" onclick="quickAdd('Chini',240)">🍬 Chini ₹240</span>
-      <span class="chip" onclick="quickAdd('Chawal',60)">🍚 Chawal ₹60</span>
-      <span class="chip" onclick="quickAdd('Daal',120)">🫘 Daal ₹120</span>
-      <span class="chip" onclick="quickAdd('Atta',45)">🌾 Atta ₹45</span>
-      <span class="chip" onclick="quickAdd('Tel',160)">🫙 Tel ₹160</span>
-      <span class="chip" onclick="quickAdd('Namak',20)">🧂 Namak ₹20</span>
-    </div>
+
 
     <div class="add-form">
       <div class="add-form-title">📝 Nayi cheez add karo</div>
