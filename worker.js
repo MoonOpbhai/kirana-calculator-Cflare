@@ -442,17 +442,17 @@ body{background:var(--bg);font-family:'Baloo 2',sans-serif;min-height:100vh;colo
     <div class="add-form">
       <div class="add-form-title">📝 Nayi cheez add karo</div>
       <div class="field">
-        <label><span class="licon">🏷️</span> Cheez ka naam</label>
-        <input class="finput" type="text" id="b-name" placeholder="Jaise: Chini"/>
+        <label><span class="licon">🏷️</span> Cheez ka naam <span style="color:#dc2626">*</span></label>
+        <input class="finput" type="text" id="b-name" placeholder="Jaise: Chini, Daal, Tel..."/>
       </div>
       <div class="field">
-        <label><span class="licon">📊</span> 1 Kilo ka rate (₹)</label>
-        <input class="finput" type="number" id="b-rate" placeholder="240" inputmode="decimal"/>
+        <label><span class="licon">💵</span> Price / Amount (₹) <span style="color:#dc2626">*</span></label>
+        <input class="finput" type="number" id="b-price-direct" placeholder="Jaise: 30, 120, 250..." inputmode="decimal"/>
       </div>
       <div class="field" style="margin-bottom:0">
-        <label><span class="licon">⚖️</span> Kitna lena hai?</label>
+        <label><span class="licon">⚖️</span> Quantity <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
         <div class="unit-row">
-          <input class="finput" type="number" id="b-qty" placeholder="500" inputmode="decimal"/>
+          <input class="finput" type="number" id="b-qty" placeholder="Optional — 500, 1, 250..." inputmode="decimal"/>
           <select class="fselect" id="b-unit">
             <option value="gram">Gram</option>
             <option value="kg">Kilo</option>
@@ -585,16 +585,15 @@ function quickAdd(name,rate){
 }
 function addItem(){
   const name=document.getElementById('b-name').value.trim();
-  const rate=parseFloat(document.getElementById('b-rate').value);
-  const qty=parseFloat(document.getElementById('b-qty').value);
+  const price=parseFloat(document.getElementById('b-price-direct').value);
+  const qty=document.getElementById('b-qty').value.trim();
   const unit=document.getElementById('b-unit').value;
-  if(!name||!rate||!qty)return;
-  const grams=unit==='kg'?qty*1000:qty;
-  const price=Math.round((rate/1000)*grams*100)/100;
-  billItems.push({name,qty,unit,rate,price});
+  if(!name||!price||price<=0)return;
+  const qtyVal=qty?parseFloat(qty):null;
+  billItems.push({name,qty:qtyVal,unit,price:Math.round(price*100)/100});
   renderBill();
   document.getElementById('b-name').value='';
-  document.getElementById('b-rate').value='';
+  document.getElementById('b-price-direct').value='';
   document.getElementById('b-qty').value='';
 }
 function renderBill(){
@@ -611,14 +610,16 @@ function renderBill(){
   empty.style.display='none';
   sec.classList.add('show');
   cnt.textContent=billItems.length+' cheez'+(billItems.length>1?'ein':'');
-  cont.innerHTML=billItems.map((item,i)=>\`
-    <div class="item-row">
+  cont.innerHTML=billItems.map((item,i)=>{
+    const qtyLabel=item.qty?\`<span class="item-qty">\${item.qty}\${item.unit==='kg'?'kg':'g'}</span>\`:'';
+    return \`<div class="item-row">
       <div class="item-dot"></div>
       <span class="item-name">\${item.name}</span>
-      <span class="item-qty">\${item.qty}\${item.unit==='kg'?'kg':'g'}</span>
+      \${qtyLabel}
       <span class="item-price">₹\${item.price.toFixed(2)}</span>
       <button class="del-btn" onclick="removeItem(\${i})">✕</button>
-    </div>\`).join('');
+    </div>\`;
+  }).join('');
   const total=billItems.reduce((s,i)=>s+i.price,0);
   document.getElementById('grand-total').textContent='₹'+total.toFixed(2);
   summ.textContent=billItems.length+' items ka total';
